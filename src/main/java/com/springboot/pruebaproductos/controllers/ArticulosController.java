@@ -54,7 +54,7 @@ public class ArticulosController {
         Map<String, Object> response = new HashMap<>();
         return registerMono.flatMap(register -> {
             return service.saveBitacora(register).map(re -> {
-                response.put("mensaje", re);
+                response.put("bitacora", re);
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(response);
@@ -145,19 +145,18 @@ public class ArticulosController {
             // Creamos nuestra response
         }).flatMap(art -> {
             BitacoraSubscription bSubscription = new BitacoraSubscription();
-            bSubscription.setAccion("a");
+            bSubscription.setAccion("UPDATED");
             bSubscription.setTimestamp(new Date().toString());
             bSubscription.setBody("Se actualizó un articulo con clave = " + art.getClave());
             response.put("articulo", art);
             return saveBitacoraController(Mono.just(bSubscription)).map(res -> {
-                response.put("bi", res);
+                response.put("bitacora", res.getBody());
                 response.put("mensaje", "Actualizado Correctamente");
                 response.put("timestamp", new Date().toString());
                 if (res.getBody().get("error") != null) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).contentType(MediaType.APPLICATION_JSON)
                             .body(res.getBody());
                 } else {
-
                     return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response);
                 }
             });
@@ -212,7 +211,7 @@ public class ArticulosController {
             } else {
                 response.put("Bitacora", "Todo Ok");
             }
-            return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response));
+            return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response).getBody());
         });
 
     }
@@ -226,11 +225,13 @@ public class ArticulosController {
         bit.setTimestamp(new Date().toString());
         return Flux.zip(deleteArticulo(clave), saveBitacoraController(Mono.just(bit))).flatMap(
                 tuples -> {
+                    response.put("status code articulo", tuples.getT1().getStatusCode());
+                    response.put("status code bitacora", tuples.getT2().getStatusCode());
                     if (tuples.getT2().getBody().get("error") != null) {
-                        response.put("Bitacora", tuples.getT2().getBody().get("error"));
+                        response.put("bitacora", tuples.getT2().getBody().get("error"));
                     } else {
-                        response.put("Articulo", "Todo OK");
-                        response.put("Bitacora", "Todo OK");
+                        response.put("articulo", "Todo OK");
+                        response.put("bitacora", "Todo OK");
                     }
                     return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response));
                 });
@@ -238,7 +239,7 @@ public class ArticulosController {
     }
 
     @PutMapping("/update/{clave}")
-    public Flux<Object> update(@RequestBody Articulos articulo, @PathVariable String clave) {
+    public Flux<Object> update(@Valid @RequestBody Articulos articulo, @PathVariable String clave) {
         Map<String, Object> response = new HashMap<>();
         BitacoraSubscription bit = new BitacoraSubscription();
         bit.setAccion("UPDATED");
@@ -247,10 +248,10 @@ public class ArticulosController {
         return Flux.zip(updateArticulo(articulo, clave), saveBitacoraController(Mono.just(bit))).flatMap(
                 tuples -> {
                     if (tuples.getT2().getBody().get("error") != null) {
-                        response.put("Bitacora", tuples.getT2().getBody().get("error"));
+                        response.put("bitacora", tuples.getT2().getBody().get("error"));
                     } else {
-                        response.put("Articulo", "Todo OK");
-                        response.put("Bitacora", "Todo OK");
+                        response.put("articulo", "Todo OK");
+                        response.put("bitacora", "Todo OK");
                     }
                     return Mono.just(ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response));
                 });
