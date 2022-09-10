@@ -32,6 +32,9 @@ public class Articulos {
         this.um = um;
     }
 
+    public Articulos() {
+    }
+
     public String getClave() {
         return this.clave;
     }

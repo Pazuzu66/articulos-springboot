@@ -1,19 +1,17 @@
 package com.springboot.pruebaproductos.suscribes;
 
-import java.util.List;
-
 public class BitacoraSubscription {
     private String id;
     private String accion;
     private String body;
     private String timestamp;
 
-    public BitacoraSubscription(String id, String accion, String body, String timestamp){
+    public BitacoraSubscription(String id, String accion, String body, String timestamp) {
         this.id = id;
         this.accion = accion;
         this.body = body;
         this.timestamp = timestamp;
-    }    
+    }
 
     public BitacoraSubscription() {
     }

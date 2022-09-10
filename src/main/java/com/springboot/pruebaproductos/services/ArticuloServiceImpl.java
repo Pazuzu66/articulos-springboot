@@ -1,12 +1,7 @@
 package com.springboot.pruebaproductos.services;
 
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.springboot.pruebaproductos.documents.Articulos;
@@ -52,10 +47,10 @@ public class ArticuloServiceImpl implements ArticuloService {
 
     @Override
     public Mono<BitacoraSubscription> saveBitacora(BitacoraSubscription register) {
-        return  client.post().uri(URL)
-        .body(Mono.just(register), BitacoraSubscription.class)
-        .retrieve()
-        .bodyToMono(BitacoraSubscription.class);
+        return client.post().uri(URL)
+                .body(Mono.just(register), BitacoraSubscription.class)
+                .retrieve()
+                .bodyToMono(BitacoraSubscription.class);
     }
 
 }
